@@ -19,7 +19,11 @@ spec:
         imagePullPolicy: Never
         command: ["sh", "-c"]
         args:
-          - "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:5000 --workers 2"
+          - |
+            until python manage.py migrate --noinput; do
+              echo "Aguardando DB..."; sleep 3
+            done
+            gunicorn config.wsgi:application --bind 0.0.0.0:5000 --workers 2
         envFrom:
         - secretRef:
             name: db-secret
